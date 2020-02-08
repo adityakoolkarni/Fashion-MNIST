@@ -1,15 +1,4 @@
 ################################################################################
-# CSE 253: Programming Assignment 2
-# Code snippet by Manjot Bilkhu
-# Winter 2020
-################################################################################
-# We've provided you with the dataset in PA2.zip
-################################################################################
-# To install PyYaml, refer to the instructions for your system:
-# https://pyyaml.org/wiki/PyYAMLDocumentation
-################################################################################
-# If you don't have NumPy installed, please use the instructions here:
-# https://scipy.org/install.html
 ################################################################################
 
 import os, gzip,sys
@@ -32,8 +21,7 @@ def normalize_data(img):
     Normalize your inputs here and return them.
     """
     assert isinstance(img, np.ndarray)
-    
-    #normalized_image  = img/256
+   
     normalized_image  = (img - np.min(img))/(np.max(img) - np.min(img))
     
     return normalized_image
@@ -119,19 +107,13 @@ def grad_softmax(y, targets):
     except OverflowError:
         print("Inputs to softmax too large")
 
-    #raise NotImplementedError("Softmax not implemented")
     return grad_softmax
 
 
 class Activation():
     """
-    The class implements different types of activation functions for
+    This class implements different types of activation functions for
     your neural network layers.
-
-    Example (for sigmoid):
-        >>> sigmoid_layer = Activation("sigmoid")
-        >>> z = sigmoid_layer(a)
-        >>> gradient = sigmoid_layer.backward(delta=1.0)
     """
 
     def __init__(self, activation_type = "sigmoid"):
@@ -186,8 +168,6 @@ class Activation():
         Implement the sigmoid activation here.
         """
         sigmoid_out = 1/(1+np.exp(-x))
-        #print(sigmoid_out)
-        #raise NotImplementedError("Sigmoid not implemented")
         return sigmoid_out
 
     def tanh(self, x):
@@ -195,10 +175,8 @@ class Activation():
         Implement tanh here.
         """
 
-        #tanh_out = (np.exp(x) - np.exp(-x))/(np.exp(x) + np.exp(-x))
         tanh_out = np.tanh(x)
         
-        #raise NotImplementedError("Tanh not implemented")
         return tanh_out
 
     def ReLU(self, x):
@@ -208,7 +186,6 @@ class Activation():
         relu_out = np.copy(x)
         relu_out[relu_out<0] = 0
         
-        #raise NotImplementedError("ReLu not implemented")
         return relu_out
 
     def grad_sigmoid(self,x):
@@ -217,7 +194,6 @@ class Activation():
         """
         grad_sigmoid_out = self.sigmoid(x)*(1-self.sigmoid(x))
         
-        #raise NotImplementedError("Sigmoid gradient not implemented")
         return grad_sigmoid_out
 
     def grad_tanh(self, x):
@@ -225,7 +201,6 @@ class Activation():
         Compute the gradient for tanh here.
         """
         grad_tanh_out = (1-(self.tanh(x))**2)
-        #raise NotImplementedError("tanh gradient not implemented")
         return grad_tanh_out
 
     def grad_ReLU(self, x):
@@ -234,7 +209,6 @@ class Activation():
         """
         grad_relu_out = (x > 0) * 1
         
-        #raise NotImplementedError("ReLU gradient not implemented")
         return grad_relu_out
 
 class Layer():
@@ -252,22 +226,14 @@ class Layer():
         Define the architecture and create placeholder.
         """
         np.random.seed(42)
-        #self.w = (np.random.rand(in_units, out_units) - 0.5)*2    # Declare the Weight matrix
-        #self.b = np.random.rand(out_units)# - 0.5)    # Create a placeholder for Bias
-        #self.w = np.random.normal(0,1/(math.sqrt(in_units)),(in_units, out_units))
         self.w = np.random.randn(in_units, out_units)
         self.b = np.zeros(out_units)
 
         self.bst_wghts = self.w
         self.bst_b = self.b
 
-        #if(in_units == 100):
-        #    #print(self.b.shape)
-        #    self.w[1,1] = self.w[1,1]-0.01
-        #print(self.b)
         self.x = None    # Save the input to forward in this
         self.a = None    # Save the output of forward pass in this (without activation)
-        #print("Initialising")
         self.d_x = None  # Save the gradient w.r.t x in this
         self.d_w = None  # Save the gradient w.r.t w in this
         self.d_b = None  # Save the gradient w.r.t b in this
@@ -290,9 +256,7 @@ class Layer():
         Uses best weights
         """
         self.x = x
-        #self.a = np.matmul(x, self.bst_wghts) + self.bst_b
         self.a = x @ self.bst_wghts + self.bst_b
-        #raise NotImplementedError("Layer forward pass not implemented.")
         
         return self.a
 
@@ -303,10 +267,7 @@ class Layer():
         Return self.a
         """
         self.x = x
-        #self.a = np.matmul(x, self.w) + self.b
-        ###Temp
         self.a = np.dot(x, self.w) + self.b
-        #raise NotImplementedError("Layer forward pass not implemented.")
         
         return self.a
 
@@ -321,31 +282,17 @@ class Layer():
         self.d_x = np.matmul(delta, self.w.T) #/config['batch_size']
         self.d_b = np.sum(delta, axis=0)
         
-        #if self.w.shape[0] == 784:
-        #    self.w[100,1] -= 0.01
-        #    print(self.d_w[100,1])
-        #print('*'*25)
-
         # Weight Update 
         if momentum == 0:
-            #print(self.w.shape, np.sum(self.w), np.sum(self.d_w))
             self.w += lr*self.d_w
             self.b += lr*self.d_b 
             
         else:
-            #self.d_w = self.d_w - reg*self.w /config['batch_size']
-            #self.v_w = momentum*self.v_w - (1-momentum) * self.d_w
-            #self.v_b = momentum*self.v_b - (1-momentum) * self.d_b
-            #self.w -= lr*self.v_w 
-            #self.b -= lr*self.v_b
-            ##New
             self.d_w = self.d_w - reg*self.w# /config['batch_size']
             self.v_w = momentum*self.v_w + lr * self.d_w
             self.v_b = momentum*self.v_b + lr * self.d_b
             self.w += self.v_w 
             self.b += self.v_b
-        #raise NotImplementedError("Backprop for Layer not implemented.")
-        #raise NotImplementedError("Backprop for Layer not implemented.")
         return self.d_x
 
 
@@ -384,7 +331,6 @@ class Neuralnetwork():
         '''
         Saves the current weights in the forward layer when called
         '''
-        #print("Saving Weights")
         for each_layer in self.layers:
             if(hasattr(each_layer,'w')):
                 each_layer.bst_wghts = each_layer.w
@@ -395,7 +341,6 @@ class Neuralnetwork():
         Compute forward pass through all the layers in the network and return it.
         If targets are provided, return loss as well.
         """
-        #self.x = x
         for each_layer in self.layers:
             output = each_layer(x,test_mode)
             x = output
@@ -408,7 +353,6 @@ class Neuralnetwork():
             return self.y, self.loss(self.y, targets, reg)
         else:
             return self.y    
-        #raise NotImplementedError("Forward not implemented for NeuralNetwork")
 
     def loss(self, logits, targets, reg=0):
         '''
@@ -420,17 +364,8 @@ class Neuralnetwork():
                 break
             if(hasattr(each_layer,'w')):
                 loss = loss + reg*(np.sum(np.square(each_layer.w))) / (2 * targets.shape[0])
-                #loss += reg * (np.linalg.norm(each_layer.w))
         
-        #print(targets.shape,logits.shape)
-        #loss = loss - np.sum(np.matmul(targets, np.log(logits.T)))/targets.shape[0]
         loss = loss - np.sum(targets * np.log(logits))/targets.shape[0]
-        #print("Loss is",loss)
-        #print(" ################################### ")
-        #print(targets.shape,logits.shape)
-        #loss += -np.mean(targets*logits)
-        #loss += np.sum(-np.matmul(targets, np.log(logits.T)))/targets.shape[0]
-        #raise NotImplementedError("Loss not implemented for NeuralNetwork")
         return loss
 
     def backward(self, lr = 0.005, momentum=0, reg=0):
@@ -438,12 +373,9 @@ class Neuralnetwork():
         Implement backpropagation here.
         Call backward methods of individual layer's.
         '''
-        ## Need to implement the derivative of softmax here.
         delta = grad_softmax(self.y, self.targets)
         for each_layer in self.layers[::-1]:
             delta = each_layer.backward(delta, lr, momentum, reg)
-             
-        #raise NotImplementedError("Backprop not implemented for NeuralNetwork")
 
 def threshold_output(output,target):
     """
@@ -452,7 +384,6 @@ def threshold_output(output,target):
     """
 
     encoded = np.eye(output.shape[1])
-    #max_prob = np.argmax(output,axis=1).reshape(output.shape[0])
     max_prob = np.argmax(output,axis=1)
     corr_output = np.argmax(target,axis=1)
 
@@ -505,29 +436,21 @@ def train(net, x_train, y_train, x_valid, y_valid, config):
                     net.backward(config['learning_rate'], 0, config['L2_penalty'])
                 else: 
                     net.backward(config['learning_rate'])
-            #print("Training",loss/x_train_batch.shape[0])
             num_iters += 1
-            ### Old 
-            #train_loss[n] += loss / (x_train_batch.shape[0])
 
             train_loss[n] += loss 
-            #train_loss[n] += loss / x_train.shape[0]
-
         train_loss[n] = train_loss[n] / num_iters #Average over the number of iterations
         train_true_predictions[n] = train_true_predictions[n] / num_iters
         assert train_true_predictions[n] <= 1
 
         num_iters = 0
-        #print("Average train loss after {} epochs: {}".format(n, train_loss[n]))
         
         # Validation run
         for i in range(0, x_valid.shape[0], config['batch_size']):
             x_valid_batch = x_valid[i:i+config['batch_size']]
             y_valid_batch = y_valid[i:i+config['batch_size']]
             output, loss = net(x_valid_batch, y_valid_batch)
-            #valid_true_predictions[n] += np.sum(threshold_output(output) == y_valid_batch) / (config['batch_size'] * output.shape[1])
             valid_true_predictions[n] += threshold_output(output,y_valid_batch)
-            #val_loss[n] += loss / x_valid_batch.shape[0] 
             val_loss[n] += loss  
             num_iters += 1
 
@@ -544,19 +467,6 @@ def train(net, x_train, y_train, x_valid, y_valid, config):
 
         if(early_stp_cntr == config['early_stop_epoch']):
             break
-        #if (n > 1 and not(min_reached)):
-        #    if(early_stp_cntr == config['early_stop_epoch']):
-        #        net.save_wghts()
-        #        print("Saving Weights")
-        #        min_reached = True
-        #    if(val_loss[n] > val_loss[n-1]):
-        #        early_stp_cntr += 1
-
-            #print("Saving Weights")
-            #print("Validation", loss/x_valid_batch.shape[0])
-        #print("Validation loss after {} epochs: {} ".format(n,val_loss[n]))
-
-    # Plot the train and validation loss against the number of epochs
     plt.figure(1)
     plt.plot(np.arange(config['epochs']), train_loss, label='Train')
     plt.plot(np.arange(config['epochs']), val_loss, label='Validation')
@@ -574,9 +484,6 @@ def train(net, x_train, y_train, x_valid, y_valid, config):
     plt.ylabel('Accuracy')
     plt.legend()
     plt.show()
-    
-    #input()
-    #raise NotImplementedError("Train method not implemented")
 
 
 def test(model, X_test, y_test):
@@ -601,59 +508,13 @@ if __name__ == "__main__":
     x_train, y_train = load_data(path="./", mode="train")
     x_test,  y_test  = load_data(path="./", mode="t10k")
 
-
-    ############## Solution to part b #########
-#     ## Create a subset of data with one from each class
-#     x_subset = np.zeros((10, x_train.shape[1]))
-#     y_subset = np.zeros((10, y_train.shape[1]))
-#     k = 0
-#     for j in range(120):
-#         if np.array_equal((np.sum(y_subset, axis=1)), (np.ones(10))):
-#             break
-#         if np.argmax(y_train[j,:]) == k:
-#             x_subset[k] = x_train[j]
-#             y_subset[k] = y_train[j]
-#             k += 1
-#     for i in range(2):#x_subset.shape[0]):
-#         output, loss = model.forward(x_subset[i-1:i], y_subset[i-1:i])
-#         print(loss)
-#         model.backward(lr=config['learning_rate'])
-    ############################################ 
-
-
-
-    
-    # Debug mode - Comment out while actually run the training and testing. 
-    #x_train = x_train[:128]
-    #y_train = y_train[:128]
-    #x_test = x_test[:20]
-    #y_test = y_test[:20]
-    
-    ###################### Messy prints go here #############################
-    #print(x_train.shape)
-    #print(y_train.shape)
-    #print(x_train[1])
-    #print(y_train[1])
-    #display_image(x_train[1])
-    ##########################################################################
-    
-    # Create splits for validation data here.
-    # Shuffle if necessary - Added by Shreyas
-
-    #x_valid = x_train[int(0.8*x_train.shape[0]):]
-    #y_valid = y_train[int(0.8*y_train.shape[0]):]
-    #x_train = x_train[:int(0.8*x_train.shape[0])]
-    #y_train = y_train[:int(0.8*y_train.shape[0])]
-
     x_valid = x_train[50000:60000]
     y_valid = y_train[50000:60000]
     x_train = x_train[:50000]
     y_train = y_train[:50000]
 
     # Train the model
-    #train(model, x_subset, y_subset, x_valid, y_valid, config)
     train(model, x_train, y_train, x_valid, y_valid, config)
 
     # Test the model
-    #test(model, x_test, y_test)
-    test(model, x_valid, y_valid)
+    test(model, x_test, y_test)
